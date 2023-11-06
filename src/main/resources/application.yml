@@ -1,0 +1,25 @@
+spring:
+#  jpa:
+ #   show-sql: on
+  jackson:
+    serialization:
+      INDENT_OUTPUT: true
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:homebanking
+server:
+  servlet:
+    context-path: /api
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  openapi:
+    path: /openapi.json
+app:
+  jwtSecret: ElinuvyHomebankingAppSecretKeyPrueba232429!$ElinuvyHomebankingAppSecretKeyPrueba232429!$
+  jwtExpirationMs: 10800000
