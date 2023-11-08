@@ -29,9 +29,9 @@ public interface ClientLoanService {
 
     ClientLoanDTO getClientLoanDTO(String code);
 
-    ClientLoanDTO createClientLoan(LoanApplicationDTO loanApplicationDTO);
+    ClientLoanDTO createClientLoan(LoanApplicationDTO loanApplicationDTO, String email);
 
     ClientLoan saveClientLoan(ClientLoan clientLoan);
 
-    void payClientLoan(ClientLoan clientLoan, String accountNumber);
+    void payClientLoan(ClientLoan clientLoan, String accountNumber, String email);
 }

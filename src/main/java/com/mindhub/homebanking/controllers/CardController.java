@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -37,19 +38,21 @@ public class CardController {
         return new ResponseEntity<>(cardService.findAllCardsDTOByClientEmail(userPrincipal.getUsername()), OK);
     }
 
-    @GetMapping("/number")
-    public ResponseEntity<CardDTO> getCard(@RequestParam String number){
+    @GetMapping("/{number}")
+    public ResponseEntity<CardDTO> getCard(@PathVariable String number){
         return new ResponseEntity<>(cardService.findCardDTOByNumber(number), OK);
     }
 
-    @PostMapping
-    public ResponseEntity<CardDTO> createCard(@RequestBody @Valid CardRegisterDTO cardRegisterDTO) {
-        return new ResponseEntity<>(cardService.createCreditCard(cardRegisterDTO.getCardColor(), cardRegisterDTO.getCreditLimit(), clientService.findClientByEmail(cardRegisterDTO.getEmail())), OK);
+    @Transactional
+    @PostMapping("/current")
+    public ResponseEntity<CardDTO> createCard(@RequestBody @Valid CardRegisterDTO cardRegisterDTO, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return new ResponseEntity<>(cardService.createCreditCard(cardRegisterDTO.getCardColor(), cardRegisterDTO.getCreditLimit(), clientService.findClientByEmail(userPrincipal.getUsername())), OK);
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deleteCard(@RequestParam Long id) {
-        cardService.deleteCard(cardService.findCardById(id));
+    @Transactional
+    @DeleteMapping("/current")
+    public ResponseEntity<String> deleteCard(@RequestParam String number, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        cardService.deleteCard(cardService.findCardByNumber(number, userPrincipal.getUsername()));
         return new ResponseEntity<>("Card has been deleted",OK);
     }
 

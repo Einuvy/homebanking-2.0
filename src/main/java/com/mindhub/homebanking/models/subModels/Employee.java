@@ -17,7 +17,7 @@ import static com.mindhub.homebanking.models.ENUM.RoleType.ROLE_ADMIN;
 
 @Entity
 @Getter
-@SQLDelete(sql = "UPDATE employee SET active = false WHERE id = ?")
+/*@SQLDelete(sql = "UPDATE employee SET active = false WHERE id = ?")*/
 public class Employee extends Person {
 
     public Employee() {

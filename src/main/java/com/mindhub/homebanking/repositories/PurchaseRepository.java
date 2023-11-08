@@ -18,5 +18,6 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     List<Purchase> findByCreditCardNumberAndCreationDateAfterAndCurrentPaymentLessThan(String number, LocalDateTime creationDate, Integer maxPayments);
     List<Purchase> findByCreditCardNumberAndCreationDateBeforeAndCurrentPaymentLessThan(String number, LocalDateTime creationDate, Integer maxPayments);
+    List<Purchase> findByCreditCardNumberAndCreationDateBeforeAndPaidFalse(String number, LocalDateTime creationDate);
 
 }

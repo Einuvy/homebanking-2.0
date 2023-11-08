@@ -12,7 +12,7 @@ public interface TransactionService {
 
     List<TransactionDTO> findAllDTOByAccountNumber(String number);
 
-    TransactionDTO createTransaction(TransactionCreateDTO transactionCreateDTO);
+    TransactionDTO createTransaction(TransactionCreateDTO transactionCreateDTO, String number);
 
     Transaction saveTransaction(Transaction transaction);
 }

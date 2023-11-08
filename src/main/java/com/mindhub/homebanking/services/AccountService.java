@@ -40,12 +40,12 @@ public interface AccountService {
     //UPDATE
     Account saveAccount(Account account);
 
-    AccountDTO updateAccount(AccountPatchDTO accountDTO);
+    AccountDTO updateAccount(AccountPatchDTO accountDTO, String email);
 
     //DELETE
     void deleteAccount(Account account);
 
     void deleteAccountById(Long id);
 
-    void deleteAccountByNumber(String number);
+    void deleteAccountByNumber(String number, String email);
 }

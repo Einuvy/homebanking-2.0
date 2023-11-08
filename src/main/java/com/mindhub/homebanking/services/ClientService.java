@@ -1,5 +1,6 @@
 package com.mindhub.homebanking.services;
 
+import com.mindhub.homebanking.models.DTO.response.ClientBasicDTO;
 import com.mindhub.homebanking.models.DTO.response.PersonAuthDTO;
 import com.mindhub.homebanking.models.DTO.response.ClientDTO;
 import com.mindhub.homebanking.models.DTO.request.ClientPatchDTO;
@@ -31,14 +32,16 @@ public interface ClientService {
 
     ClientDTO findClientDTOByEmail(String email);
 
-    PersonAuthDTO findClientCurrentByEmail(String email);
+    ClientBasicDTO findClientBasicDTOByEmail(String email);
+
+    ClientDTO findClientCurrentByEmail(String email);
 
     ClientDTO findClientDTOById(Long id);
 
     //UPDATE
     Client saveClient(Client client);
 
-    ClientDTO updateClient(ClientRegisterDTO clientRegisterDTO, String email);
+    ClientDTO updateClient(ClientPatchDTO clientPatchDTO, String email);
 
     ClientDTO patchClient(ClientPatchDTO clientPatchDTO, String email);
 
@@ -49,4 +52,5 @@ public interface ClientService {
 
     void deleteClientByEmail(String email);
 
+    Boolean existsByEmailAndActiveTrueAndAccount(String email, String number);
 }

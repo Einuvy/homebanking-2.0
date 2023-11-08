@@ -8,6 +8,7 @@ import com.mindhub.homebanking.services.ClientLoanService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -41,14 +42,15 @@ public class ClientLoanController {
         return clientLoanService.getClientLoanDTOsByLoan(code);
     }
 
-    @PostMapping
-    public ClientLoanDTO createClientLoan(@RequestBody LoanApplicationDTO loanApplicationDTO) {
-        return clientLoanService.createClientLoan(loanApplicationDTO);
+    @Transactional
+    @PostMapping("/current")
+    public ClientLoanDTO createClientLoan(@RequestBody LoanApplicationDTO loanApplicationDTO, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        return clientLoanService.createClientLoan(loanApplicationDTO, userPrincipal.getUsername());
     }
 
-    @PatchMapping
-    public void payClientLoan(@RequestBody @Valid LoanPaymentDTO loanPaymentDTO) {
-        clientLoanService.payClientLoan(clientLoanService.getClientLoan(loanPaymentDTO.getCode()), loanPaymentDTO.getAccountNumber());
+    @PatchMapping("/current")
+    public void payClientLoan(@RequestBody @Valid LoanPaymentDTO loanPaymentDTO, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        clientLoanService.payClientLoan(clientLoanService.getClientLoan(loanPaymentDTO.getCode()), loanPaymentDTO.getAccountNumber(), userPrincipal.getUsername());
     }
 
 }

@@ -9,7 +9,5 @@ import javax.validation.constraints.Email;
 @Getter
 public class AccountRegisterDTO {
     AccountType accountType;
-    @Email(message = "Email should be valid")
-    String email;
     CardColor cardColor;
 }

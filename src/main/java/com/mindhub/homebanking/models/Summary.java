@@ -33,7 +33,8 @@ public class Summary {
     @Setter
     private LocalDate thruDate = LocalDate.now().plusDays(15);
 
-    @OneToMany(mappedBy = "summary", fetch = FetchType.EAGER)
+    @ManyToMany(mappedBy = "summaries")
+    @Setter
     private Set<Purchase> purchases = new HashSet<>();
 
     @Setter
@@ -52,8 +53,4 @@ public class Summary {
         this.code = code;
     }
 
-    public void addPurchase(Purchase purchase) {
-        purchase.setSummary(this);
-        purchases.add(purchase);
-    }
 }

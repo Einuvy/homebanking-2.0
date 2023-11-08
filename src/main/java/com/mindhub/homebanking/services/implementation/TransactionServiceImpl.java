@@ -7,13 +7,16 @@ import com.mindhub.homebanking.models.superModels.Account;
 import com.mindhub.homebanking.repositories.TransactionRepository;
 import com.mindhub.homebanking.services.AccountService;
 import com.mindhub.homebanking.services.TransactionService;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.mindhub.homebanking.models.ENUM.TransactionType.DEPOSIT;
 import static com.mindhub.homebanking.models.ENUM.TransactionType.WITHDRAWAL;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -36,9 +39,12 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
 
+
     @Override
-    public TransactionDTO createTransaction(TransactionCreateDTO transactionCreateDTO) {
+    public TransactionDTO createTransaction(TransactionCreateDTO transactionCreateDTO, String email) {
+
         Account account = accountService.findAccountByNumberAndActiveTrue(transactionCreateDTO.getAccountNumber());
+        if (account.getClient().getEmail().equals(email)) throw new ResponseStatusException(FORBIDDEN,"This account does not belong to the client");
         Account toAccount = accountService.findAccountByNumberAndActiveTrue(transactionCreateDTO.getToAccountNumber());
 
         Transaction deposit = new Transaction(transactionCreateDTO.getAmount(), transactionCreateDTO.getDescription(), DEPOSIT);

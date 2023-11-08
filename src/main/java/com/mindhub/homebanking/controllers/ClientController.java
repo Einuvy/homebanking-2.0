@@ -1,6 +1,7 @@
 package com.mindhub.homebanking.controllers;
 
 import com.mindhub.homebanking.configuration.UserPrincipal;
+import com.mindhub.homebanking.models.DTO.response.ClientBasicDTO;
 import com.mindhub.homebanking.models.DTO.response.PersonAuthDTO;
 import com.mindhub.homebanking.models.DTO.response.ClientDTO;
 import com.mindhub.homebanking.models.DTO.request.ClientPatchDTO;
@@ -10,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -31,27 +34,28 @@ public class ClientController {
         return new ResponseEntity<>(clientService.findAllClientsDTOByActiveTrue(), OK);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ClientDTO> getClient(@PathVariable Long id){
-        return new ResponseEntity<>(clientService.findClientDTOById(id), OK);
+    @GetMapping ("/find-one")
+    public ResponseEntity<ClientBasicDTO> getClient(@RequestParam String email){
+        return new ResponseEntity<>(clientService.findClientBasicDTOByEmail(email), OK);
     }
 
     @GetMapping("/current")
-    public ResponseEntity<PersonAuthDTO> getClient(@AuthenticationPrincipal UserPrincipal userPrincipal){
+    public ResponseEntity<ClientDTO> getClient(@AuthenticationPrincipal UserPrincipal userPrincipal){
         return new ResponseEntity<>(clientService.findClientCurrentByEmail(userPrincipal.getUsername()), OK);
     }
 
-    @PutMapping("/current")
-    public ResponseEntity<ClientDTO> updateClient(@RequestBody @Valid ClientRegisterDTO clientRegisterDTO, @AuthenticationPrincipal UserPrincipal userPrincipal){
-        return new ResponseEntity<>(clientService.updateClient(clientRegisterDTO, userPrincipal.getUsername()), OK);
+    @PutMapping("/current") //Deberia cambiar el DTO para no traer datos innecesarios
+    public ResponseEntity<ClientDTO> updateClient(@RequestBody @Valid ClientPatchDTO clientPatchDTO, @AuthenticationPrincipal UserPrincipal userPrincipal){
+        return new ResponseEntity<>(clientService.updateClient(clientPatchDTO, userPrincipal.getUsername()), OK);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/current")  //Deberia cambiar el DTO para no traer datos innecesarios
     public ResponseEntity<ClientDTO> patchClient(@RequestBody ClientPatchDTO clientPatchDTO, @AuthenticationPrincipal UserPrincipal userPrincipal){
         return new ResponseEntity<>(clientService.patchClient(clientPatchDTO, userPrincipal.getUsername()), OK);
     }
 
-    @DeleteMapping("/{id}")
+    @Transactional
+    @DeleteMapping("/current")
     public ResponseEntity<String> deleteClient(@AuthenticationPrincipal UserPrincipal userPrincipal){
         clientService.deleteClientByEmail(userPrincipal.getUsername());
         return new ResponseEntity<>("Client has been deleted", OK);

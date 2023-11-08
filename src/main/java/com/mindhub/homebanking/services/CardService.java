@@ -24,7 +24,13 @@ public interface CardService {
 
     Card findCardById(Long id);
 
+    Card findCardByNumber(String number, String email);
+
     Card findCardByNumber(String number);
+
+    Boolean existsCreditByColorAndClient_EmailAndActiveTrue(CardColor color, String email);
+
+    Boolean existsDebitByColorAndAccountClientEmailAndAccountNumberStartsWithAndActiveTrue(CardColor color, String email, String number);
 
     //READ DTO
     List<CardDTO> findAllDTOCards();
@@ -42,4 +48,6 @@ public interface CardService {
 
     //DELETE
     void deleteCard(Card card);
+
+
 }

@@ -1,6 +1,4 @@
 spring:
-#  jpa:
- #   show-sql: on
   jackson:
     serialization:
       INDENT_OUTPUT: true

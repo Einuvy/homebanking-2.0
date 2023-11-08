@@ -48,6 +48,10 @@ public class Account {
     @OneToMany(mappedBy = "account")
     private Set<Transaction> transactions = new HashSet<>();
 
+    @Setter
+    @ManyToOne
+    private Client client;
+
     public Account(String number, String alias, String CBU) {
         this.number = number;
         this.alias = alias;

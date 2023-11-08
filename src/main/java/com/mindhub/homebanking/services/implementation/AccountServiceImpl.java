@@ -9,6 +9,7 @@ import com.mindhub.homebanking.models.superModels.Account;
 import com.mindhub.homebanking.repositories.*;
 import com.mindhub.homebanking.services.AccountService;
 import com.mindhub.homebanking.services.CardService;
+import com.mindhub.homebanking.services.ClientService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -25,25 +26,26 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final CheckingAccountRepository checkingAccountRepository;
     private final SavingAccountRepository savingAccountRepository;
-    private final ClientRepository clientRepository;
+    private final ClientService clientService;
     private final CardService cardService;
 
     public AccountServiceImpl(AccountRepository accountRepository,
                               CheckingAccountRepository checkingAccountRepository,
                               SavingAccountRepository savingAccountRepository,
-                              ClientRepository clientRepository,
+                              ClientService clientService,
                               CardService cardService) {
         this.accountRepository = accountRepository;
         this.checkingAccountRepository = checkingAccountRepository;
         this.savingAccountRepository = savingAccountRepository;
-        this.clientRepository = clientRepository;
+        this.clientService = clientService;
         this.cardService = cardService;
     }
 
     //CREATE
     @Override
     public AccountDTO createAccount(AccountType accountType, String email, CardColor cardColor) {
-        Client client = clientRepository.findByEmailAndActiveTrue(email).orElseThrow(()-> new ResponseStatusException(NOT_FOUND, "Client not found"));
+
+        Client client = clientService.findClientByEmail(email);
         String number;
         String alias;
         String CBU;
@@ -58,9 +60,12 @@ public class AccountServiceImpl implements AccountService {
             CBU = getRandomCBU();
         }while (accountRepository.existsByCBU(CBU));
         if (AccountType.CHECKING.equals(accountType)){
+            if (cardService.existsDebitByColorAndAccountClientEmailAndAccountNumberStartsWithAndActiveTrue(cardColor, email, accountType.getAbbreviation())){
+                throw new ResponseStatusException(BAD_REQUEST, "Account type already exists");
+            }
             CheckingAccount checkingAccount = new CheckingAccount(number, alias, CBU);
             checkingAccountRepository.save(checkingAccount);
-            client.addAccountChecking(checkingAccount);
+            client.addAccount(checkingAccount);
             DebitCard debitCard = cardService.createDebitCard(cardColor);
 
 
@@ -69,8 +74,11 @@ public class AccountServiceImpl implements AccountService {
             cardService.saveDebitCard(debitCard);
             return new AccountDTO(checkingAccountRepository.save(checkingAccount));
         }
+        if (savingAccountRepository.existsByClient_EmailAndActiveTrue(email)){
+            throw new ResponseStatusException(BAD_REQUEST, "Saving account already exists");
+        }
         SavingAccount savingAccount = new SavingAccount(number, alias, CBU);
-        client.addAccountSaving(savingAccount);
+        client.addAccount(savingAccount);
         return new AccountDTO(savingAccountRepository.save(savingAccount));
     }
 
@@ -139,7 +147,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDTO updateAccount(AccountPatchDTO accountDTO) {
+    public AccountDTO updateAccount(AccountPatchDTO accountDTO, String email) {
+        if (accountRepository.existsByClient_EmailAndNumberAndActiveTrue(accountDTO.getNumber(), email)){
+            throw new ResponseStatusException(BAD_REQUEST, "Account does not belong to client");
+        }
         Account account = findAccountByNumberAndActiveTrue(accountDTO.getNumber());
         if (accountRepository.existsByAlias(accountDTO.getAlias())){
             throw new ResponseStatusException(BAD_REQUEST, "Alias already exists");
@@ -166,8 +177,11 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void deleteAccountByNumber(String number) {
+    public void deleteAccountByNumber(String number, String email) {
+        if (!accountRepository.existsByClient_EmailAndNumberAndActiveTrue(number, email)) throw new ResponseStatusException(BAD_REQUEST, "Account does not belong to client");
         Account account =  findAccountByNumberAndActiveTrue(number);
+
+
         account.setActive(false);
         if (account instanceof CheckingAccount){
             cardService.deleteCard(((CheckingAccount) account).getDebitCard());

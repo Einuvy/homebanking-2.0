@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface SavingAccountRepository extends JpaRepository<SavingAccount, Long> {
     List<SavingAccount> findByClientAndActiveTrue(Client client);
+
+    boolean existsByClient_EmailAndActiveTrue(String email);
 }

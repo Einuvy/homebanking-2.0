@@ -16,9 +16,9 @@ import javax.persistence.*;
 @SQLDelete(sql = "UPDATE saving_account SET active = false WHERE id = ?")
 */
 public class SavingAccount extends Account {
-    @Setter
+    /*@Setter
     @ManyToOne
-    private Client client;
+    private Client client;*/
 
     private Double interestRate = 0.1d;
 

@@ -1,6 +1,7 @@
 package com.mindhub.homebanking.models.subModels;
 
 import com.mindhub.homebanking.models.ClientLoan;
+import com.mindhub.homebanking.models.superModels.Account;
 import com.mindhub.homebanking.models.superModels.Person;
 import lombok.Getter;
 import org.hibernate.annotations.SQLDelete;
@@ -24,11 +25,14 @@ import static javax.persistence.FetchType.EAGER;
 /*@SQLDelete(sql = "UPDATE client SET active = false WHERE id = ?")*/
 public class Client extends Person {
 
-    @OneToMany(mappedBy = "client")
+    /*@OneToMany(mappedBy = "client")
     private Set<CheckingAccount> checkingAccounts = new HashSet<>();
 
     @OneToMany(mappedBy = "client")
-    private Set<SavingAccount> savingAccounts = new HashSet<>();
+    private Set<SavingAccount> savingAccounts = new HashSet<>();*/
+
+    @OneToMany(mappedBy = "client")
+    private Set<Account> accounts = new HashSet<>();
 
     @OneToMany(mappedBy = "client", fetch = EAGER)
     private Set<CreditCard> creditCards = new HashSet<>();
@@ -44,13 +48,17 @@ public class Client extends Person {
         super(firstName, lastName, email, password, birthDate, dni, ROLE_CLIENT);
     }
 
-    public void addAccountChecking(CheckingAccount checkingAccount){
+    /*public void addAccountChecking(CheckingAccount checkingAccount){
         checkingAccount.setClient(this);
         checkingAccounts.add(checkingAccount);
     }
     public void addAccountSaving(SavingAccount accountSaving){
         accountSaving.setClient(this);
         savingAccounts.add(accountSaving);
+    }*/
+    public void addAccount(Account account){
+        account.setClient(this);
+        accounts.add(account);
     }
 
     public void addCreditCard(CreditCard creditCard){

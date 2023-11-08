@@ -8,9 +8,7 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 public class CardRegisterDTO {
-    @Email
-    private String email;
-    @NotNull
+    @NotNull(message = "Number is required")
     private Double creditLimit;
     private CardColor cardColor;
 }

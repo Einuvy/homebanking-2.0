@@ -22,4 +22,6 @@ public interface ClientLoanRepository extends JpaRepository<ClientLoan, Long> {
     List<ClientLoan> findByClient_EmailAndPaidFalse(String email);
 
     List<ClientLoan> findByLoan_Code(String code);
+
+    boolean existsByClient_EmailAndClient_Accounts_NumberAndActualPaymentGreaterThanEqual(String email, String number, Integer actualPayment, Integer payments);
 }

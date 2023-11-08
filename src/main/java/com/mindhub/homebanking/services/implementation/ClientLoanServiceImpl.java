@@ -88,7 +88,7 @@ public class ClientLoanServiceImpl implements ClientLoanService {
     }
 
     @Override
-    public ClientLoanDTO createClientLoan(LoanApplicationDTO loanApplicationDTO) {
+    public ClientLoanDTO createClientLoan(LoanApplicationDTO loanApplicationDTO, String email) {
         Loan loan = loanService.getLoan(loanApplicationDTO.getCode());
         if (loanApplicationDTO.getAmount()>loan.getMaxAmount() || loanApplicationDTO.getAmount()<loan.getMinAmount()){
             throw new ResponseStatusException(BAD_REQUEST, "Amount not valid");
@@ -100,7 +100,7 @@ public class ClientLoanServiceImpl implements ClientLoanService {
             throw new ResponseStatusException(BAD_REQUEST, "Payments period not valid");
         }
 
-        Client client = clientService.findClientByEmail(loanApplicationDTO.getEmail());
+        Client client = clientService.findClientByEmail(email);
         Account account = accountService.findAccountByNumberAndActiveTrue(loanApplicationDTO.getAccountNumber());
 
 
@@ -137,12 +137,11 @@ public class ClientLoanServiceImpl implements ClientLoanService {
     }
 
     @Override
-    public void payClientLoan(ClientLoan clientLoan, String accountNumber) {
-        if (clientLoan.getPaid()){
+    public void payClientLoan(ClientLoan clientLoan, String accountNumber, String email) {
+        if (clientLoanRepository.existsByClient_EmailAndClient_Accounts_NumberAndActualPaymentGreaterThanEqual(email, accountNumber, clientLoan.getActualPayment(), clientLoan.getPayments())){
             throw new ResponseStatusException(BAD_REQUEST, "Loan already paid");
         }
-        if (clientLoan.getActualPayment()>=clientLoan.getPayments()){
-            clientLoanRepository.delete(clientLoan);
+        if (clientLoan.getPaid()){
             throw new ResponseStatusException(BAD_REQUEST, "Loan already paid");
         }
         Account account = accountService.findAccountByNumberAndActiveTrue(accountNumber);
@@ -161,4 +160,6 @@ public class ClientLoanServiceImpl implements ClientLoanService {
         }
         saveClientLoan(clientLoan);
     }
+
+
 }

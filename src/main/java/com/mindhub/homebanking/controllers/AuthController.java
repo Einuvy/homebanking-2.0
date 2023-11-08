@@ -13,6 +13,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 import static org.springframework.http.HttpStatus.*;
@@ -32,14 +33,14 @@ public class AuthController {
         this.jwtProvider = jwtProvider;
     }
 
-
+    @Transactional
     @PostMapping("/register")
     public ResponseEntity<PersonAuthDTO> createClient(@RequestBody @Valid ClientRegisterDTO client){
         return new ResponseEntity<>(clientService.createClient(client), CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> login(@RequestBody @Valid LoginDTO loginDTO) {
 
 
         Authentication authentication = authenticationManager.authenticate(

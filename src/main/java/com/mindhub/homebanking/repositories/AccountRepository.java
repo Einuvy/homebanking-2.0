@@ -15,4 +15,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     Optional<Account> findByNumberAndActiveTrue(String number);
     Optional<Account> findByIdAndActiveTrue(long id);
     Optional<Account> findByCBUAndActiveTrue(String cbu);
+
+    long countByClient_EmailAndNumberStartsWith(String email, String number);
+
+    boolean existsByClient_EmailAndNumberAndActiveTrue(String email, String number);
+
+    Optional<Account> findByNumberAndClient_Email(String number, String email);
 }

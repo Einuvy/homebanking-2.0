@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -41,9 +43,12 @@ public class Purchase {
     @Setter
     private CreditCard creditCard;
 
-    @ManyToOne
+    @ManyToMany(mappedBy = "purchases")
     @Setter
-    private Summary summary;
+    private Set<Summary> summaries = new HashSet<>();
+
+    @Setter
+    private Boolean paid = false;
 
     public Purchase(Double amount,
                     Integer maxPayments,

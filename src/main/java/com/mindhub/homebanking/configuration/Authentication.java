@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.springframework.http.HttpMethod.*;
+
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 @Configuration
@@ -41,7 +43,13 @@ public class Authentication {
         http.csrf().disable()
                 .cors().disable()
                 .authorizeRequests()
-                .anyRequest().permitAll()
+                .antMatchers(POST, "/api/auth/login", "/api/auth/register").permitAll()
+                .antMatchers(GET, "/api/clients/find-one", "/api/accounts/{id}", "/api/cards/{number}", "/api/client-loans/{number}", "/api/transaction/account").hasAuthority("CLIENT")
+                .antMatchers("/api/clients/current", "/api/accounts/current", "/api/cards/current", "/api/client-loans/current", "/api/transactions/current").hasAuthority("CLIENT")
+                .antMatchers(GET, "/api/clients", "/api/accounts").hasAuthority("ADMIN")
+                .antMatchers( "/api/loans/*").hasAuthority("ADMIN")
+                .anyRequest().denyAll()
+
 
                 .and().authenticationManager(authenticationManager)
                 .sessionManagement().sessionCreationPolicy(STATELESS)

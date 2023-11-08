@@ -22,9 +22,9 @@ public class CheckingAccount extends Account {
     @OneToOne(mappedBy = "account")
     private DebitCard debitCard;
 
-    @Setter
+    /*@Setter
     @ManyToOne
-    private Client client;
+    private Client client;*/
 
     public CheckingAccount(String number, String alias, String CBU) {
         super(number, alias, CBU);

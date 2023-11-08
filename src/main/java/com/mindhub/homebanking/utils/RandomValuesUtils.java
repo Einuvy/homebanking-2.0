@@ -2,6 +2,7 @@ package com.mindhub.homebanking.utils;
 
 import org.apache.commons.lang3.RandomStringUtils;
 
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomValuesUtils {
@@ -11,5 +12,8 @@ public class RandomValuesUtils {
     }
     public static String randomString(Integer minLength, Integer maxLength){
         return RandomStringUtils.randomAlphabetic(minLength, maxLength);
+    }
+    public static String generateUniqueCode() {
+        return UUID.randomUUID().toString();
     }
 }

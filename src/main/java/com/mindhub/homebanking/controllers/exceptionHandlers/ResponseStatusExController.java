@@ -33,18 +33,5 @@ public class ResponseStatusExController {
         return errors;
     }
 
-   /* @ResponseStatus(HttpStatus.FORBIDDEN)
-    @ExceptionHandler(ExpiredJwtException.class)
-    public Map<String, String> handleResponseStatusException(ExpiredJwtException exception) {
-        Map<String, String> errors = new HashMap<>();
-        errors.put("message", "Token has expired");
-        return errors;
-    }*/
-
-    /*@ExceptionHandler(MalformedJwtException.class)
-    public ResponseEntity<String> handleMalformedJwtException(MalformedJwtException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body("Token has been tampered with or is invalid" + exception.getMessage());
-    }*/
 
 }

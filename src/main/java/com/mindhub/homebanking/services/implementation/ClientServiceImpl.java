@@ -1,10 +1,12 @@
 package com.mindhub.homebanking.services.implementation;
 
 import com.mindhub.homebanking.configuration.jwt.JwtProvider;
+import com.mindhub.homebanking.models.DTO.response.ClientBasicDTO;
 import com.mindhub.homebanking.models.DTO.response.PersonAuthDTO;
 import com.mindhub.homebanking.models.DTO.response.ClientDTO;
 import com.mindhub.homebanking.models.DTO.request.ClientPatchDTO;
 import com.mindhub.homebanking.models.DTO.request.ClientRegisterDTO;
+import com.mindhub.homebanking.models.subModels.CheckingAccount;
 import com.mindhub.homebanking.models.subModels.Client;
 import com.mindhub.homebanking.repositories.*;
 import com.mindhub.homebanking.services.ClientService;
@@ -107,10 +109,14 @@ public class ClientServiceImpl implements ClientService {
     public ClientDTO findClientDTOByEmail(String email) {
         return new ClientDTO(findClientByEmail(email));
     }
+    @Override
+    public ClientBasicDTO findClientBasicDTOByEmail(String email) {
+        return new ClientBasicDTO(findClientByEmail(email));
+    }
 
     @Override
-    public PersonAuthDTO findClientCurrentByEmail(String email) {
-        return new PersonAuthDTO(findClientByEmail(email));
+    public ClientDTO findClientCurrentByEmail(String email) {
+        return new ClientDTO(findClientByEmail(email));
     }
 
 
@@ -126,21 +132,18 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public ClientDTO updateClient(ClientRegisterDTO clientRegisterDTO, String email) {
+    public ClientDTO updateClient(ClientPatchDTO clientPatchDTO, String email) {
         Client clientToUpdate = findClientByEmail(email);
 
-        if (clientRepository.existsByEmailIgnoreCaseAndActiveTrue(clientRegisterDTO.getEmail())) {
-            throw new ResponseStatusException(BAD_REQUEST, "Email already exists");
-        }
-        if (clientRepository.existsByDniAndActiveTrue(clientRegisterDTO.getDni())) {
+        if (clientRepository.existsByDniAndActiveTrue(clientPatchDTO.getDni())) {
             throw new ResponseStatusException(BAD_REQUEST, "DNI already exists");
         }
 
-        clientToUpdate.setFirstName(clientRegisterDTO.getFirstName());
-        clientToUpdate.setLastName(clientRegisterDTO.getLastName());
-        clientToUpdate.setPassword(clientRegisterDTO.getPassword());
-        clientToUpdate.setDni(clientRegisterDTO.getDni());
-        clientToUpdate.setBirthDate(clientRegisterDTO.getBirthDate());
+        clientToUpdate.setFirstName(clientPatchDTO.getFirstName());
+        clientToUpdate.setLastName(clientPatchDTO.getLastName());
+        clientToUpdate.setPassword(clientPatchDTO.getPassword());
+        clientToUpdate.setDni(clientPatchDTO.getDni());
+        clientToUpdate.setBirthDate(clientPatchDTO.getBirthDate());
 
         saveClient(clientToUpdate);
 
@@ -152,9 +155,6 @@ public class ClientServiceImpl implements ClientService {
 
         Client clientToUpdate = findClientByEmail(email);
 
-        if (clientRepository.existsByEmailIgnoreCaseAndActiveTrue(clientPatchDTO.getEmail())) {
-            throw new ResponseStatusException(BAD_REQUEST, "Email already exists");
-        }
         if (clientRepository.existsByDniAndActiveTrue(clientPatchDTO.getDni())) {
             throw new ResponseStatusException(BAD_REQUEST, "DNI already exists");
         }
@@ -189,7 +189,13 @@ public class ClientServiceImpl implements ClientService {
     public void deleteClientById(Long id) {
         Client client = findClientById(id);
         client.setActive(false);
-        client.getCheckingAccounts().forEach(checkingAccount -> {
+        client.getAccounts().forEach(account -> {
+            account.setActive(false);
+            if (account instanceof CheckingAccount){
+                debitCardRepository.deleteByAccount(((CheckingAccount) account));
+            }
+        });
+        /*client.getCheckingAccounts().forEach(checkingAccount -> {
             checkingAccount.getDebitCard().setActive(false);
             debitCardRepository.save(checkingAccount.getDebitCard());
             checkingAccount.setActive(false);
@@ -198,7 +204,7 @@ public class ClientServiceImpl implements ClientService {
         client.getSavingAccounts().forEach(savingAccount -> {
             savingAccount.setActive(false);
             savingAccountRepository.save(savingAccount);
-        });
+        });*/
         creditCardRepository.deleteAll(client.getCreditCards());
 
         saveClient(client);
@@ -208,7 +214,14 @@ public class ClientServiceImpl implements ClientService {
     public void deleteClientByEmail(String email) {
         Client clientToDelete = findClientByEmail(email);
         clientToDelete.setActive(false);
-        clientToDelete.getCheckingAccounts().forEach(checkingAccount -> {
+        clientToDelete.getAccounts().forEach(account -> {
+            account.setActive(false);
+            if (account instanceof CheckingAccount){
+                debitCardRepository.deleteByAccount(((CheckingAccount) account));
+            }
+        });
+
+        /*clientToDelete.getCheckingAccounts().forEach(checkingAccount -> {
             checkingAccount.getDebitCard().setActive(false);
             debitCardRepository.save(checkingAccount.getDebitCard());
             checkingAccount.setActive(false);
@@ -217,12 +230,15 @@ public class ClientServiceImpl implements ClientService {
         clientToDelete.getSavingAccounts().forEach(savingAccount -> {
             savingAccount.setActive(false);
             savingAccountRepository.save(savingAccount);
-        });
+        });*/
         clientRepository.save(clientToDelete);
         creditCardRepository.deleteAll(clientToDelete.getCreditCards());
     }
 
-
+    @Override
+    public Boolean existsByEmailAndActiveTrueAndAccount(String email, String number) {
+        return clientRepository.existsByEmailAndActiveTrueAndAccounts_Number(email, number);
+    }
 
 
 }

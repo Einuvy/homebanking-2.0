@@ -41,7 +41,7 @@ public class CardServiceImpl implements CardService {
     //CREATE
     @Override
     public CardDTO createCreditCard(CardColor cardColor, Double creditLimit, Client client) {
-
+        if (existsCreditByColorAndClient_EmailAndActiveTrue(cardColor, client.getEmail()))throw new ResponseStatusException(NOT_FOUND, "Client already has a credit card of this color");
         CreditCard creditCard = new CreditCard(cardColor,getRandomCardNumber(), getRandomCVV(), creditLimit);
         client.addCreditCard(creditCard);
         clientService.saveClient(client);
@@ -75,14 +75,30 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public Card findCardById(Long id) {
-        if (creditCardRepository.existsById(id)) return creditCardRepository.findById(id).orElse(null);
-        return debitCardRepository.findById(id).orElseThrow(()-> new ResponseStatusException(NOT_FOUND, "Card not found"));
+        if (debitCardRepository.existsByIdAndActiveTrue(id)) return debitCardRepository.findByIdAndActiveTrue(id).orElse(null);
+        return creditCardRepository.findByIdAndActiveTrue(id).orElseThrow(()-> new ResponseStatusException(NOT_FOUND, "Card not found"));
+    }
+
+    @Override
+    public Card findCardByNumber(String number, String email) {
+        if (creditCardRepository.existsByNumberAndClientEmailAndActiveTrue(number, email)) return creditCardRepository.findByNumberAndActiveTrue(number).orElse(null);
+        return debitCardRepository.findByNumberAndAccountClientEmailAndActiveTrue(number, email).orElseThrow(()-> new ResponseStatusException(NOT_FOUND, "Card not found"));
     }
 
     @Override
     public Card findCardByNumber(String number) {
         if (creditCardRepository.existsByNumberAndActiveTrue(number))return creditCardRepository.findByNumberAndActiveTrue(number).orElse(null);
         return debitCardRepository.findByNumberAndActiveTrue(number).orElseThrow(()-> new ResponseStatusException(NOT_FOUND, "Card not found"));
+    }
+
+    @Override
+    public Boolean existsCreditByColorAndClient_EmailAndActiveTrue(CardColor color, String email) {
+        return creditCardRepository.existsByColorAndClient_EmailAndActiveTrue(color, email);
+    }
+
+    @Override
+    public Boolean existsDebitByColorAndAccountClientEmailAndAccountNumberStartsWithAndActiveTrue(CardColor color, String email, String number) {
+        return debitCardRepository.existsByColorAndAccount_Client_EmailAndAccount_NumberStartsWithAndActiveTrue(color, email, number);
     }
 
     //READ DTO
@@ -122,5 +138,7 @@ public class CardServiceImpl implements CardService {
         if (card instanceof DebitCard) debitCardRepository.delete((DebitCard) card);
         if (card instanceof CreditCard) creditCardRepository.delete((CreditCard) card);
     }
+
+
 
 }

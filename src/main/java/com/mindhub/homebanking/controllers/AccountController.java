@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -44,19 +45,21 @@ public class AccountController {
         return new ResponseEntity<>(accountService.findAccountDTOById(id), OK);
     }
 
-    @PostMapping
-    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountRegisterDTO accountRegisterDTO){
-        return new ResponseEntity<>(accountService.createAccount(accountRegisterDTO.getAccountType(), accountRegisterDTO.getEmail(), accountRegisterDTO.getCardColor()), CREATED);
+    @Transactional
+    @PostMapping("/current")
+    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountRegisterDTO accountRegisterDTO, @AuthenticationPrincipal UserPrincipal userPrincipal){
+        return new ResponseEntity<>(accountService.createAccount(accountRegisterDTO.getAccountType(), userPrincipal.getUsername(), accountRegisterDTO.getCardColor()), CREATED);
     }
 
-    @DeleteMapping
-    public ResponseEntity<String> deleteAccount(@RequestParam String number){
-        accountService.deleteAccountByNumber(number);
+    @Transactional
+    @DeleteMapping("/current")
+    public ResponseEntity<String> deleteAccount(@RequestParam String number, @AuthenticationPrincipal UserPrincipal userPrincipal){
+        accountService.deleteAccountByNumber(number, userPrincipal.getUsername());
         return new ResponseEntity<>("Account has been deleted", OK);
     }
 
-    @PatchMapping
-    public ResponseEntity<AccountDTO> updateAccount(@RequestBody @Valid AccountPatchDTO accountDTO){
-        return new ResponseEntity<>( accountService.updateAccount(accountDTO), OK);
+    @PatchMapping("/current")
+    public ResponseEntity<AccountDTO> updateAccount(@RequestBody @Valid AccountPatchDTO accountDTO, @AuthenticationPrincipal UserPrincipal userPrincipal){
+        return new ResponseEntity<>( accountService.updateAccount(accountDTO, userPrincipal.getUsername()), OK);
     }
 }

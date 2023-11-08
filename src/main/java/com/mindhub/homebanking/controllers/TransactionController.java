@@ -1,12 +1,15 @@
 package com.mindhub.homebanking.controllers;
 
+import com.mindhub.homebanking.configuration.UserPrincipal;
 import com.mindhub.homebanking.models.DTO.request.TransactionCreateDTO;
 import com.mindhub.homebanking.models.DTO.response.TransactionDTO;
 import com.mindhub.homebanking.services.TransactionService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 
@@ -28,10 +31,11 @@ public class TransactionController {
         return new ResponseEntity<>(transactionService.findAllDTOByAccountNumber(number), OK);
     }
 
-    @PostMapping
-    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionCreateDTO transactionCreateDTO) {
+    @Transactional
+    @PostMapping("/current")
+    public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionCreateDTO transactionCreateDTO, @AuthenticationPrincipal UserPrincipal userPrincipal) {
         if (transactionCreateDTO.getAmount() <= 0) throw new ResponseStatusException(BAD_REQUEST, "Amount must be greater than 0");
-        return new ResponseEntity<>(transactionService.createTransaction(transactionCreateDTO), OK);
+        return new ResponseEntity<>(transactionService.createTransaction(transactionCreateDTO, userPrincipal.getUsername()), OK);
     }
 
 }

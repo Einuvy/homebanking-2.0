@@ -1,5 +1,7 @@
 package com.mindhub.homebanking.repositories;
 
+import com.mindhub.homebanking.models.ENUM.CardColor;
+import com.mindhub.homebanking.models.subModels.CheckingAccount;
 import com.mindhub.homebanking.models.subModels.DebitCard;
 import com.mindhub.homebanking.models.superModels.Card;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +18,10 @@ public interface DebitCardRepository extends CardRepository<DebitCard, Long> {
     Optional<Card> findByNumberAndActiveTrue(String number);
 
     boolean existsByIdAndActiveTrue(Long aLong);
+
+    void deleteByAccount(CheckingAccount account);
+
+    boolean existsByColorAndAccount_Client_EmailAndAccount_NumberStartsWithAndActiveTrue(CardColor color, String email, String number);
+
+    Optional<DebitCard> findByNumberAndAccountClientEmailAndActiveTrue(String number, String email);
 }

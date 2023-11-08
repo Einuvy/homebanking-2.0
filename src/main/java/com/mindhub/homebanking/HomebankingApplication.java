@@ -46,9 +46,9 @@ public class HomebankingApplication {
 									  PasswordEncoder passwordEncoder){
 		return args -> {
 
-			Client client = new Client("John", "Doe", "jhon@gmail.com", passwordEncoder.encode("jhon123"), LocalDate.of(2000, 3, 23),"12345678");
-			Client client2 = new Client("Jane", "Doe", "jhane@gmail.com", passwordEncoder.encode("jhane1234"), LocalDate.of(2000, 3, 23),"87654321");
-			Employee client3 = new Employee("Elias", "Medina", "eliasnikolasmv@gmail.com", passwordEncoder.encode("elias123"), LocalDate.of(2000, 5, 15),"42644301");
+			Client client = new Client("John", "Doe", "jhon@gmail.com", passwordEncoder.encode("Jhon!123"), LocalDate.of(2000, 3, 23),"12345678");
+			Client client2 = new Client("Jane", "Doe", "jhane@gmail.com", passwordEncoder.encode("Jhane!1234"), LocalDate.of(2000, 3, 23),"87654321");
+			Employee client3 = new Employee("Elias", "Medina", "eliasnikolasmv@gmail.com", passwordEncoder.encode("Elias!123"), LocalDate.of(2000, 5, 15),"42644301");
 			clientRepository.save(client);
 			clientRepository.save(client2);
 			employeeRepository.save(client3);
@@ -57,8 +57,8 @@ public class HomebankingApplication {
 			savingAccount.setAmount(1000000d);
 			SavingAccount savingAccount2 = new SavingAccount("MHBS - 691890376", "jhane.mhb", "CBU - 577515352");
 			savingAccount2.setAmount(1000000d);
-			client.addAccountSaving(savingAccount);
-			client2.addAccountSaving(savingAccount2);
+			client.addAccount(savingAccount);
+			client2.addAccount(savingAccount2);
 			savingAccountRepository.save(savingAccount);
 			savingAccountRepository.save(savingAccount2);
 
@@ -66,8 +66,8 @@ public class HomebankingApplication {
 			checkingAccount.setAmount(1000000d);
 			CheckingAccount checkingAccount2 = new CheckingAccount("MHBC - 942263695", "jhane.corriente", "CBU - 391465499");
 			checkingAccount2.setAmount(1000000d);
-			client.addAccountChecking(checkingAccount);
-			client2.addAccountChecking(checkingAccount2);
+			client.addAccount(checkingAccount);
+			client2.addAccount(checkingAccount2);
 			checkingAccountRepository.save(checkingAccount);
 			checkingAccountRepository.save(checkingAccount2);
 
@@ -109,19 +109,19 @@ public class HomebankingApplication {
 
 
 			Set<Purchase> purchases= new HashSet<>(purchaseRepository.findByCreditCardNumberAndCreationDateBeforeAndCurrentPaymentLessThan(purchase.getCreditCard().getNumber(), LocalDateTime.now().plusDays(1), purchase.getMaxPayments()));
+			summary.setPurchases(purchases);
 			purchases.forEach(purchaseF -> {
-				summary.addPurchase(purchaseF);
-				purchaseRepository.save(purchaseF);
+				purchaseF.getSummaries().add(summary);
 			});
-
+			purchaseRepository.saveAll(purchases);
+			summaryRepository.save(summary);
 
 			Set<Purchase> purchases2= new HashSet<>(purchaseRepository.findByCreditCardNumberAndCreationDateBeforeAndCurrentPaymentLessThan(purchase2.getCreditCard().getNumber(), LocalDateTime.now().plusDays(1), purchase2.getMaxPayments()));
+			summary2.setPurchases(purchases2);
 			purchases2.forEach(purchaseF -> {
-				summary2.addPurchase(purchaseF);
-				purchaseRepository.save(purchaseF);
+				purchaseF.getSummaries().add(summary2);
 			});
-
-			summaryRepository.save(summary);
+			purchaseRepository.saveAll(purchases2);
 			summaryRepository.save(summary2);
 
 		};

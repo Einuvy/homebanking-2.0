@@ -20,4 +20,8 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     // Employees/Managers
     boolean existsByDni(String dni);
     boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByEmailAndActiveTrueAndAccounts_Number(String email, String number);
+
+
 }

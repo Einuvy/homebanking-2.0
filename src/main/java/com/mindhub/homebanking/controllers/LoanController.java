@@ -6,13 +6,14 @@ import com.mindhub.homebanking.services.LoanService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/loans")
 public class LoanController {
 
     private final LoanService loanService;
@@ -32,6 +33,7 @@ public class LoanController {
         return new ResponseEntity<>(loanService.getLoanDTO(code), OK);
     }
 
+    @Transactional
     @PostMapping
     public ResponseEntity<LoanDTO> createLoan(@RequestBody @Valid LoanCreationDTO loanCreationDTO){
         return new ResponseEntity<>(loanService.createLoanDTO(loanCreationDTO), OK);
@@ -47,6 +49,7 @@ public class LoanController {
         return new ResponseEntity<>(loanService.patchLoan(code, loanCreationDTO), OK);
     }
 
+    @Transactional
     @DeleteMapping("/{code}")
     public ResponseEntity<String> deleteLoan(@PathVariable String code) {
         loanService.deleteLoan(code);
